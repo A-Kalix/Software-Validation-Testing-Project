@@ -3,6 +3,17 @@ using Backend.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// --- 1. CORS Configuration ---
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendPolicy", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173") // Standard Vite port
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -20,6 +31,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// --- 2. Enable CORS Middleware ---
+app.UseCors("FrontendPolicy");
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
@@ -27,3 +41,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
