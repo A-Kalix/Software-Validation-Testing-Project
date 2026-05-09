@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260509172500_InitialCreate")]
+    [Migration("20260509174310_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -235,7 +235,7 @@ namespace Backend.Migrations
                     b.HasOne("Backend.Models.Department", "Department")
                         .WithMany("Courses")
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Department");
@@ -296,7 +296,7 @@ namespace Backend.Migrations
                     b.HasOne("Backend.Models.User", "Instructor")
                         .WithMany("TaughtSections")
                         .HasForeignKey("InstructorId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Classroom");
@@ -311,7 +311,7 @@ namespace Backend.Migrations
                     b.HasOne("Backend.Models.Department", "Department")
                         .WithMany("Students")
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Department");

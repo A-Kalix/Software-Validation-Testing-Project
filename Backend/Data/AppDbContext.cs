@@ -39,15 +39,24 @@ public class AppDbContext : DbContext
             .HasForeignKey(e => e.StudentId)
             .OnDelete(DeleteBehavior.NoAction);
             
+        // Configure Sections to avoid cascade cycles
+        modelBuilder.Entity<Section>()
+            .HasOne(s => s.Instructor)
+            .WithMany(u => u.TaughtSections)
+            .HasForeignKey(s => s.InstructorId)
+            .OnDelete(DeleteBehavior.NoAction);
+
         // Configure Department links
         modelBuilder.Entity<Department>()
             .HasMany(d => d.Courses)
             .WithOne(c => c.Department)
-            .HasForeignKey(c => c.DepartmentId);
+            .HasForeignKey(c => c.DepartmentId)
+            .OnDelete(DeleteBehavior.Restrict);
             
         modelBuilder.Entity<Department>()
             .HasMany(d => d.Students)
             .WithOne(u => u.Department)
-            .HasForeignKey(u => u.DepartmentId);
+            .HasForeignKey(u => u.DepartmentId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
