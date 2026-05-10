@@ -2,20 +2,30 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { LogIn, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import FormInput from '../components/FormInput';
-import FormButton from '../components/FormButton';
+import authService from '../services/authService';
 
 /**
  * Login Page
- * Uses modular components from src/components for a clean, maintainable structure.
+ * Uses modular components and abstracted services for a professional architecture.
  */
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ email: '', password: '' });
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login attempt:', formData);
+    setIsLoading(true);
+    try {
+      const result = await authService.login(formData);
+      authService.handleAuthSuccess(result);
+      console.log('Login successful:', result);
+      // Navigate to dashboard would happen here
+    } catch (error) {
+      // central error handling is in client.js, but we could add local feedback here
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -63,8 +73,8 @@ const Login = () => {
             </button>
           </FormInput>
 
-          <FormButton type="submit">
-            Sign In
+          <FormButton type="submit" disabled={isLoading}>
+            {isLoading ? 'Signing In...' : 'Sign In'}
           </FormButton>
         </form>
 

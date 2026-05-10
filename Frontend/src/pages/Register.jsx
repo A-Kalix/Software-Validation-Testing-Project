@@ -2,13 +2,12 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { UserPlus, Mail, Lock, User, Briefcase, GraduationCap } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import FormInput from '../components/FormInput';
-import FormSelect from '../components/FormSelect';
-import FormButton from '../components/FormButton';
+import authService from '../services/authService';
+import { DEPARTMENTS, USER_ROLES } from '../utils/constants';
 
 /**
  * Register Page
- * Implementation follows the exact schema of the RegisterDTO.
+ * Implementation follows a clean architecture by offloading logic to services and constants.
  */
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -20,22 +19,21 @@ const Register = () => {
     departmentId: '',
     role: ''
   });
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Registration attempt:', formData);
+    setIsLoading(true);
+    try {
+      const result = await authService.register(formData);
+      console.log('Registration successful:', result);
+      // Navigate to login or auto-login
+    } catch (error) {
+      // centralized handling in client.js
+    } finally {
+      setIsLoading(false);
+    }
   };
-
-  const departments = [
-    { value: '11111111-1111-1111-1111-111111111111', label: 'Computer Science' },
-    { value: '22222222-2222-2222-2222-222222222222', label: 'Software Engineering' },
-    { value: '33333333-3333-3333-3333-333333333333', label: 'Data Science' }
-  ];
-
-  const roles = [
-    { value: '0', label: 'Student' },
-    { value: '1', label: 'Instructor' }
-  ];
 
   return (
     <main className="auth-page">
@@ -108,7 +106,7 @@ const Register = () => {
             label="Department"
             icon={GraduationCap}
             value={formData.departmentId}
-            options={departments}
+            options={DEPARTMENTS}
             onChange={(e) => setFormData({...formData, departmentId: e.target.value})}
             required
           />
@@ -117,13 +115,13 @@ const Register = () => {
             label="User Role"
             icon={Briefcase}
             value={formData.role}
-            options={roles}
+            options={USER_ROLES}
             onChange={(e) => setFormData({...formData, role: e.target.value})}
             required
           />
 
-          <FormButton type="submit">
-            Create Account
+          <FormButton type="submit" disabled={isLoading}>
+            {isLoading ? 'Creating Account...' : 'Create Account'}
           </FormButton>
         </form>
 
