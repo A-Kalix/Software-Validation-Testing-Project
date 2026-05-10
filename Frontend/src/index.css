@@ -2,4 +2,194 @@
 @tailwind components;
 @tailwind utilities;
 
-body { margin: 0; font-family: sans-serif; }
+@layer components {
+  /* Premium Academic Layout */
+  .auth-page {
+    @apply min-h-screen;
+    @apply bg-slate-950;
+    @apply flex;
+    @apply items-center;
+    @apply justify-center;
+    @apply p-4;
+  }
+
+  /* Sleek, Solid Card */
+  .auth-card {
+    @apply w-full;
+    @apply max-w-md;
+    @apply bg-slate-900;
+    @apply border;
+    @apply border-slate-800;
+    @apply p-10;
+    @apply rounded-2xl;
+    @apply shadow-2xl;
+    @apply shadow-black/50;
+  }
+
+  /* Structured Header */
+  .auth-header {
+    @apply flex;
+    @apply flex-col;
+    @apply items-center;
+    @apply mb-10;
+  }
+
+  .auth-logo-box {
+    @apply w-14;
+    @apply h-14;
+    @apply bg-indigo-600;
+    @apply rounded-xl;
+    @apply flex;
+    @apply items-center;
+    @apply justify-center;
+    @apply mb-5;
+    @apply shadow-lg;
+    @apply shadow-indigo-900/20;
+  }
+
+  .auth-logo-icon {
+    @apply text-white;
+    @apply w-8;
+    @apply h-8;
+  }
+
+  .auth-title {
+    @apply text-2xl;
+    @apply font-bold;
+    @apply text-white;
+    @apply tracking-tight;
+  }
+
+  .auth-subtitle {
+    @apply text-sm;
+    @apply text-slate-400;
+    @apply mt-2;
+  }
+
+  /* Clean Form Elements */
+  .auth-form {
+    @apply space-y-5;
+  }
+
+  .auth-row {
+    @apply grid;
+    @apply grid-cols-2;
+    @apply gap-4;
+  }
+
+  .auth-input-group {
+    @apply space-y-1.5;
+  }
+
+  .auth-label {
+    @apply text-xs;
+    @apply font-semibold;
+    @apply text-slate-400;
+    @apply uppercase;
+    @apply tracking-wider;
+    @apply ml-1;
+  }
+
+  .auth-input-wrapper {
+    @apply relative;
+    @apply group;
+  }
+
+  .auth-input {
+    @apply w-full;
+    @apply bg-slate-950;
+    @apply border;
+    @apply border-slate-800;
+    @apply text-white;
+    @apply text-sm;
+    @apply rounded-xl;
+    @apply py-3.5;
+    @apply pl-11;
+    @apply pr-4;
+    @apply transition-colors;
+    @apply duration-200;
+  }
+
+  .auth-input:focus {
+    @apply outline-none;
+    @apply border-indigo-500;
+    @apply ring-1;
+    @apply ring-indigo-500;
+  }
+
+  .auth-icon {
+    @apply absolute;
+    @apply left-4;
+    @apply top-3.5;
+    @apply w-5;
+    @apply h-5;
+    @apply text-slate-500;
+    @apply transition-colors;
+    @apply duration-200;
+  }
+
+  .auth-input-wrapper:focus-within .auth-icon {
+    @apply text-indigo-400;
+  }
+
+  .auth-password-toggle {
+    @apply absolute;
+    @apply right-4;
+    @apply top-3.5;
+    @apply text-slate-500;
+    @apply transition-colors;
+    @apply duration-200;
+  }
+
+  .auth-password-toggle:hover {
+    @apply text-slate-300;
+  }
+
+  /* Tailored Button */
+  .auth-button {
+    @apply w-full;
+    @apply bg-indigo-600;
+    @apply hover:bg-indigo-500;
+    @apply text-white;
+    @apply font-medium;
+    @apply text-sm;
+    @apply py-3.5;
+    @apply rounded-xl;
+    @apply mt-2;
+    @apply transition-colors;
+    @apply duration-200;
+  }
+
+  .auth-button:active {
+    @apply bg-indigo-700;
+  }
+
+  /* Minimal Footer */
+  .auth-footer {
+    @apply mt-8;
+    @apply pt-6;
+    @apply border-t;
+    @apply border-slate-800;
+    @apply text-center;
+  }
+
+  .auth-footer-text {
+    @apply text-slate-400;
+    @apply text-sm;
+  }
+
+  .auth-link {
+    @apply text-indigo-400;
+    @apply font-medium;
+    @apply transition-colors;
+    @apply duration-200;
+  }
+
+  .auth-link:hover {
+    @apply text-indigo-300;
+  }
+
+  .auth-select-option {
+    @apply bg-slate-800;
+  }
+}
