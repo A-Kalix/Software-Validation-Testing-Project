@@ -33,7 +33,13 @@ public class User
     public virtual Department Department { get; set; } = null!;
 
     [Required]
+    public string PasswordHash { get; set; } = string.Empty;
+
+    [Required]
     public UserRole Role { get; set; }
+
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation property for Instructor slots or Student enrollments
     public virtual ICollection<Section> TaughtSections { get; set; } = new List<Section>();
