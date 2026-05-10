@@ -92,7 +92,6 @@
 
   .auth-input-wrapper {
     @apply relative;
-    @apply group;
   }
 
   .auth-input {
