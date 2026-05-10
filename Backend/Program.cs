@@ -3,6 +3,7 @@ using Backend.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 // --- 1. CORS Configuration ---
 builder.Services.AddCors(options =>
 {
