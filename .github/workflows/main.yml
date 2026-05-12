@@ -23,13 +23,8 @@ jobs:
       - name: Build
         run: dotnet build Backend/Backend.csproj --no-restore --configuration Release
 
-      - name: Run Tests
-        run: |
-          if [ -d "Backend.Tests" ]; then
-            dotnet test Backend.Tests/Backend.Tests.csproj --no-build --configuration Release
-          else
-            echo "No test project found yet."
-          fi
+      - name: Run Unit Tests
+        run: dotnet test Backend.Tests/Backend.Tests.csproj --no-build --configuration Release
 
   build-frontend:
     runs-on: ubuntu-latest
