@@ -10,18 +10,18 @@ jobs:
   build-backend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 8.0.x
           
       - name: Restore dependencies
-        run: dotnet restore Backend/Backend.csproj
+        run: dotnet restore Backend.Tests/Backend.Tests.csproj
         
       - name: Build
-        run: dotnet build Backend/Backend.csproj --no-restore --configuration Release
+        run: dotnet build Backend.Tests/Backend.Tests.csproj --no-restore --configuration Release
 
       - name: Run Unit Tests
         run: dotnet test Backend.Tests/Backend.Tests.csproj --no-build --configuration Release
@@ -29,10 +29,10 @@ jobs:
   build-frontend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 20
           
