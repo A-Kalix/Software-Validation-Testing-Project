@@ -1,13 +1,14 @@
-using Microsoft.EntityFrameworkCore;
 using Backend.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-    public DbSet<User> Users { get; set; } = null!;
     public DbSet<Department> Departments { get; set; } = null!;
     public DbSet<Course> Courses { get; set; } = null!;
     public DbSet<Section> Sections { get; set; } = null!;
@@ -17,9 +18,10 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Must be called first — sets up all Identity tables
         base.OnModelCreating(modelBuilder);
 
-        // Configure Prerequisites relationship
+        //  Prerequisites 
         modelBuilder.Entity<Prerequisite>()
             .HasOne(p => p.Course)
             .WithMany(c => c.Prerequisites)
@@ -32,27 +34,27 @@ public class AppDbContext : DbContext
             .HasForeignKey(p => p.RequiredCourseId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Configure Enrollments
+        // Enrollments 
         modelBuilder.Entity<Enrollment>()
             .HasOne(e => e.Student)
             .WithMany(u => u.Enrollments)
             .HasForeignKey(e => e.StudentId)
             .OnDelete(DeleteBehavior.NoAction);
-            
-        // Configure Sections to avoid cascade cycles
+
+        // Sections 
         modelBuilder.Entity<Section>()
             .HasOne(s => s.Instructor)
             .WithMany(u => u.TaughtSections)
             .HasForeignKey(s => s.InstructorId)
             .OnDelete(DeleteBehavior.NoAction);
 
-        // Configure Department links
+        //  Department links 
         modelBuilder.Entity<Department>()
             .HasMany(d => d.Courses)
             .WithOne(c => c.Department)
             .HasForeignKey(c => c.DepartmentId)
             .OnDelete(DeleteBehavior.Restrict);
-            
+
         modelBuilder.Entity<Department>()
             .HasMany(d => d.Students)
             .WithOne(u => u.Department)
