@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Backend.Controllers
 {
@@ -25,23 +26,19 @@ namespace Backend.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<UserResponseDTO>> Register(RegisterDTO request)
         {
-            // 1. Validation: Check if email already exists
             if (await _context.Users.AnyAsync(u => u.Email == request.Email))
             {
                 return BadRequest("Email is already taken.");
             }
 
-            // 2. Validation: Check if Department exists
             var department = await _context.Departments.FindAsync(request.DepartmentId);
             if (department == null)
             {
                 return BadRequest("Invalid Department ID.");
             }
 
-            // 3. Security: Hash Password
             var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
-            // 4. Map DTO to Entity
             var newUser = new User
             {
                 Id = Guid.NewGuid(),
@@ -55,66 +52,118 @@ namespace Backend.Controllers
                 UpdatedAt = DateTime.UtcNow
             };
 
-            // 5. Save to Database
             _context.Users.Add(newUser);
             await _context.SaveChangesAsync();
 
-            // 6. Map Entity back to Response DTO
-            var response = new UserResponseDTO
-            {
-                Id = newUser.Id,
-                FirstName = newUser.FirstName,
-                LastName = newUser.LastName,
-                Email = newUser.Email,
-                DepartmentId = newUser.DepartmentId,
-                DepartmentName = department.Name,
-                Role = newUser.Role.ToString()
-            };
-
+            var response = MapToResponse(newUser, department.Name);
             return CreatedAtAction(nameof(Register), new { id = newUser.Id }, response);
         }
 
         [HttpPost("login")]
         public async Task<ActionResult<AuthResponseDTO>> Login(LoginDTO request)
         {
-            // 1. Find User (include Department for the response DTO)
             var user = await _context.Users
                 .Include(u => u.Department)
                 .FirstOrDefaultAsync(u => u.Email == request.Email);
 
-            if (user == null)
+            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             {
                 return Unauthorized("Invalid email or password.");
             }
 
-            // 2. Verify Password
-            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-            {
-                return Unauthorized("Invalid email or password.");
-            }
-
-            // 3. Generate JWT Token
             var tokenString = GenerateJwtToken(user);
 
-            // 4. Construct Response
-            var response = new AuthResponseDTO
+            return Ok(new AuthResponseDTO
             {
                 Token = tokenString,
                 ExpiresAt = DateTime.UtcNow.AddDays(Convert.ToDouble(_configuration["JwtSettings:ExpiryInDays"])),
-                User = new UserResponseDTO
-                {
-                    Id = user.Id,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Email = user.Email,
-                    DepartmentId = user.DepartmentId,
-                    DepartmentName = user.Department?.Name ?? "Unknown",
-                    Role = user.Role.ToString()
-                }
-            };
-
-            return Ok(response);
+                User = MapToResponse(user, user.Department?.Name ?? "Unknown")
+            });
         }
+
+        [HttpGet("profile")]
+        [Authorize]
+        public async Task<ActionResult<UserResponseDTO>> GetProfile()
+        {
+            var userId = GetUserIdFromToken();
+            var user = await _context.Users
+                .Include(u => u.Department)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null) return NotFound();
+
+            return Ok(MapToResponse(user, user.Department?.Name ?? "Unknown"));
+        }
+
+        [HttpPut("profile")]
+        [Authorize]
+        public async Task<ActionResult<UserResponseDTO>> UpdateProfile(UpdateUserDTO request)
+        {
+            var userId = GetUserIdFromToken();
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return NotFound();
+
+            if (!string.IsNullOrEmpty(request.FirstName)) user.FirstName = request.FirstName;
+            if (!string.IsNullOrEmpty(request.LastName)) user.LastName = request.LastName;
+            
+            if (!string.IsNullOrEmpty(request.Email) && request.Email != user.Email)
+            {
+                if (await _context.Users.AnyAsync(u => u.Email == request.Email))
+                    return BadRequest("Email already in use.");
+                user.Email = request.Email;
+            }
+
+            if (request.DepartmentId.HasValue)
+            {
+                var dept = await _context.Departments.FindAsync(request.DepartmentId.Value);
+                if (dept == null) return BadRequest("Invalid Department.");
+                user.DepartmentId = request.DepartmentId.Value;
+            }
+
+            user.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            // Reload to get department name
+            await _context.Entry(user).Reference(u => u.Department).LoadAsync();
+            return Ok(MapToResponse(user, user.Department?.Name ?? "Unknown"));
+        }
+
+        [HttpPost("change-password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDTO request)
+        {
+            var userId = GetUserIdFromToken();
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return NotFound();
+
+            if (!BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.PasswordHash))
+            {
+                return BadRequest("Current password is incorrect.");
+            }
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+            user.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private Guid GetUserIdFromToken()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst(JwtRegisteredClaimNames.Sub);
+            return Guid.TryParse(userIdClaim?.Value, out var userId) ? userId : Guid.Empty;
+        }
+
+        private UserResponseDTO MapToResponse(User user, string deptName) => new()
+        {
+            Id = user.Id,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Email = user.Email,
+            DepartmentId = user.DepartmentId,
+            DepartmentName = deptName,
+            Role = user.Role.ToString()
+        };
 
         private string GenerateJwtToken(User user)
         {
@@ -127,9 +176,9 @@ namespace Backend.Controllers
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role.ToString()),
-                new Claim("DepartmentId", user.DepartmentId.ToString())
+                new Claim(ClaimTypes.Role, user.Role.ToString())
             };
 
             var token = new JwtSecurityToken(

@@ -7,7 +7,8 @@ public enum EnrollmentStatus
 {
     Active,
     Waitlisted,
-    Dropped
+    Dropped,
+    Completed
 }
 
 public class Enrollment
