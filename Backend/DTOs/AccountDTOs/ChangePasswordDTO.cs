@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Backend.Models;
 
-public class ChangePasswordDTO
+namespace Backend.DTOs;
+
+public class ChangePasswordDto
 {
     [Required]
     public string CurrentPassword { get; set; } = string.Empty;

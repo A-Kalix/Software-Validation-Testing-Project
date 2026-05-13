@@ -1,9 +1,11 @@
 ﻿using System;
 using Backend.Models;
 
-public class AuthResponseDTO
+namespace Backend.DTOs;
+
+public class AuthResponseDto
 {
     public string Token { get; set; } = string.Empty;
     public DateTime ExpiresAt { get; set; }
-    public UserResponseDTO User { get; set; } = null!;
+    public UserResponseDto User { get; set; } = null!;
 }

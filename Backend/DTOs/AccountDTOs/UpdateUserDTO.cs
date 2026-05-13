@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Backend.Models;
 
-public class UpdateUserDTO
+namespace Backend.DTOs;
+
+public class UpdateUserDto
 {
     [StringLength(50)]
     public string? FirstName { get; set; }

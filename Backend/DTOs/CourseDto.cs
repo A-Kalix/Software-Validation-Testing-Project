@@ -1,6 +1,6 @@
 namespace Backend.DTOs;
 
-public class CourseDto
+public class CourseResponseDto
 {
     public Guid Id { get; set; }
     public string CourseCode { get; set; } = string.Empty;

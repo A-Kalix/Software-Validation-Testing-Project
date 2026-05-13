@@ -1,8 +1,8 @@
 ﻿using System;
-using Backend.Models;
 
+namespace Backend.DTOs;
 
-public class UserResponseDTO
+public class UserResponseDto
 {
     public Guid Id { get; set; }
     public string FirstName { get; set; } = string.Empty;

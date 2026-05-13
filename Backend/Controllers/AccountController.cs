@@ -1,14 +1,14 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;	
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using Backend.Data;
 using Backend.DTOs;
 using Backend.Models;
-uisng System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.EntityFrameworkCore;
-using Microsoft/AspNetCore.Identity;
 
 
 
@@ -43,13 +43,13 @@ public class AccountController : ControllerBase
 
 		var user = new User
 		{
-			UserName = registerDto.Username,
+			UserName = registerDto.Email,
 			Email = registerDto.Email,
 			FirstName = registerDto.FirstName,
 			LastName = registerDto.LastName,
 			DepartmentId = registerDto.DepartmentId,
 			Role = registerDto.Role
-        };
+		};
 
 		var result = await _userManager.CreateAsync(user, registerDto.Password);
 
@@ -77,31 +77,29 @@ public class AccountController : ControllerBase
 		{
 			return BadRequest(ModelState);
 		}
-		var user = await _userManager.FindByNameAsync(loginDto.Username);
+		var user = await _userManager.FindByEmailAsync(loginDto.Email);
 		if (user == null)
 		{
-			return Unauthorized(new { error = "Invalid username or password." });
+			return Unauthorized(new { error = "Invalid email or password." });
 		}
 		var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
 		if (!result.Succeeded)
 		{
-			return Unauthorized(new { error = "Invalid username or password." });
+			return Unauthorized(new { error = "Invalid email or password." });
 		}
 		var token = await GenerateJwtTokenAsync(user);
 		return Ok(await BuildAuthResponseAsync(user, token));
-    }
+	}
 
-    // Get api/accout/profile
-    // Retrieves the profile information of the currently authenticated user. Requires a valid JWT token for authentication. Returns the user's profile details or an error if the user is not authenticated.
 	[HttpGet("profile")]
 	[Authorize]
-    public async Task<ActionResult<UserResponseDto>> GetCurrentUser()
-    {
-        var user = await GetUserWithDepartmentAsync(GetCurrentUserId());
-        if (user is null) return NotFound();
+	public async Task<ActionResult<UserResponseDto>> GetCurrentUser()
+	{
+		var user = await GetUserWithDepartmentAsync(GetCurrentUserId());
+		if (user is null) return NotFound();
 
-        return Ok(MapToUserResponse(user));
-    }
+		return Ok(MapToUserResponse(user));
+	}
 
     // ─── GET api/account/{id} ────────────────────────────────────────────────
     /// <summary>Returns a user by ID. Admin only.</summary>

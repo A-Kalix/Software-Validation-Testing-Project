@@ -8,6 +8,8 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// --- Configure Kestrel to listen on localhost ---
+builder.WebHost.UseUrls("http://localhost:5000", "https://localhost:5001");
 
 // --- 1. CORS Configuration ---
 builder.Services.AddCors(options =>
