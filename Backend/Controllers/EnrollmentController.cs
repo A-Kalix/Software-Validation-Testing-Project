@@ -34,6 +34,8 @@ public class EnrollmentController : ControllerBase
             .Include(e => e.Student)
             .Include(e => e.Section)
                 .ThenInclude(s => s.Course)
+            .Include(e => e.Section)
+                .ThenInclude(s => s.Classroom)
             .AsNoTracking();
 
         // Role-based scoping
@@ -84,6 +86,9 @@ public class EnrollmentController : ControllerBase
 
         if (section == null)
             return NotFound(new { message = "Section not found." });
+
+        if (!section.IsPublished && !User.IsInRole("Admin"))
+            return BadRequest(new { message = "Registration for this section is not open yet (Draft Mode)." });
 
         // 1. Duplicate check
         var alreadyEnrolled = await _context.Enrollments.AnyAsync(e =>
@@ -178,6 +183,8 @@ public class EnrollmentController : ControllerBase
             .Include(e => e.Student)
             .Include(e => e.Section)
                 .ThenInclude(s => s.Course)
+            .Include(e => e.Section)
+                .ThenInclude(s => s.Classroom)
             .AsNoTracking()
             .FirstOrDefaultAsync(e => e.Id == id);
 
@@ -211,6 +218,10 @@ public class EnrollmentController : ControllerBase
         CourseTitle = e.Section?.Course?.Title ?? "",
         CourseCode = e.Section?.Course?.CourseCode ?? "",
         Semester = e.Section?.Semester ?? "",
+        StartTime = e.Section?.StartTime.ToString(@"hh\:mm") ?? "",
+        EndTime = e.Section?.EndTime.ToString(@"hh\:mm") ?? "",
+        DaysOfWeek = e.Section?.DaysOfWeek ?? "",
+        ClassroomName = e.Section?.Classroom != null ? $"{e.Section.Classroom.Building} {e.Section.Classroom.RoomNumber}" : "",
         EnrollmentDate = e.EnrollmentDate,
         Status = e.Status.ToString()
     };

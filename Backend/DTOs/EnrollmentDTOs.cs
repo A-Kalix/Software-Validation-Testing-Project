@@ -12,6 +12,10 @@ public class EnrollmentResponseDto
     public string CourseTitle { get; set; } = string.Empty;
     public string CourseCode { get; set; } = string.Empty;
     public string Semester { get; set; } = string.Empty;
+    public string StartTime { get; set; } = string.Empty;
+    public string EndTime { get; set; } = string.Empty;
+    public string DaysOfWeek { get; set; } = string.Empty;
+    public string ClassroomName { get; set; } = string.Empty;
     public DateTime EnrollmentDate { get; set; }
     public string Status { get; set; } = string.Empty;
 }
