@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
-export default function ProtectedRoute({ allowedRoles }) {
+export default function ProtectedRoute({ allowedRoles, children }) {
   // Simple check for token presence.
   const token = localStorage.getItem('token');
   const userString = localStorage.getItem('user');
@@ -22,5 +22,5 @@ export default function ProtectedRoute({ allowedRoles }) {
     }
   }
 
-  return <Outlet />;
+  return children ? children : <Outlet />;
 }

@@ -32,13 +32,13 @@ function App() {
         {/* Protected Dashboard Routes */}
         <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/courses" element={<Courses />} />
-          <Route path="/rooms" element={<Rooms />} />
-          <Route path="/sections" element={<Sections />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/master-schedule" element={<MasterSchedule />} />
-          <Route path="/availability" element={<InstructorAvailability />} />
-          <Route path="/my-schedule" element={<MySchedule />} />
+          <Route path="/dashboard/courses" element={<Courses />} />
+          <Route path="/dashboard/rooms" element={<Rooms />} />
+          <Route path="/dashboard/sections" element={<Sections />} />
+          <Route path="/dashboard/users" element={<Users />} />
+          <Route path="/dashboard/master-schedule" element={<MasterSchedule />} />
+          <Route path="/dashboard/availability" element={<InstructorAvailability />} />
+          <Route path="/dashboard/schedule" element={<MySchedule />} />
         </Route>
         
         {/* Fallback route */}
