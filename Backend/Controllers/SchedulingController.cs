@@ -71,9 +71,10 @@ public class SchedulingController : ControllerBase
             {
                 if (scheduled) break;
 
-                // Check instructor's availability
+                // Check instructor's availability and prioritize preferred slots
                 var instructorSlots = availabilities
                     .Where(a => a.InstructorId == instructor.Id)
+                    .OrderByDescending(a => a.IsPreferred) // Priority given to preferred slots
                     .ToList();
 
                 foreach (var slot in instructorSlots)
