@@ -14,6 +14,8 @@ public class AppDbContext : DbContext
     public DbSet<Classroom> Classrooms { get; set; } = null!;
     public DbSet<Enrollment> Enrollments { get; set; } = null!;
     public DbSet<Prerequisite> Prerequisites { get; set; } = null!;
+    public DbSet<LecturerAvailability> LecturerAvailabilities { get; set; } = null!;
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
