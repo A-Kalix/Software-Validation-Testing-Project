@@ -1,0 +1,43 @@
+name: University Scheduler CI
+
+on:
+  push:
+    branches: [ main, ahmed-khalil ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+          
+      - name: Restore dependencies
+        run: dotnet restore Backend.Tests/Backend.Tests.csproj
+        
+      - name: Build
+        run: dotnet build Backend.Tests/Backend.Tests.csproj --no-restore --configuration Release
+
+      - name: Run Unit Tests
+        run: dotnet test Backend.Tests/Backend.Tests.csproj --no-build --configuration Release
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          
+      - name: Install dependencies
+        run: cd Frontend && npm install
+        
+      - name: Build
+        run: cd Frontend && npm run build

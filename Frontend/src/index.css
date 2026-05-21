@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer components {
-  /* Premium Academic Layout */
+  /* Academic Layout */
   .auth-page {
     @apply min-h-screen;
     @apply bg-slate-950;

@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { LogIn, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import authService from '../services/authService';
+import { authService } from '../services/authService';
+import FormInput from '../components/FormInput';
+import FormButton from '../components/FormButton';
 
 /**
  * Login Page
@@ -17,9 +19,8 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const result = await authService.login(formData);
-      authService.handleAuthSuccess(result);
-      console.log('Login successful:', result);
+      await authService.login(formData);
+      console.log('Login successful');
       // Navigate to dashboard would happen here
     } catch (error) {
       // central error handling is in client.js, but we could add local feedback here

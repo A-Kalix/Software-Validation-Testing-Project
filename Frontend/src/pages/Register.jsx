@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { UserPlus, Mail, Lock, User, Briefcase, GraduationCap } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import authService from '../services/authService';
+import { authService } from '../services/authService';
 import { DEPARTMENTS, USER_ROLES } from '../utils/constants';
+import FormInput from '../components/FormInput';
+import FormButton from '../components/FormButton';
+import FormSelect from '../components/FormSelect';
 
 /**
  * Register Page
