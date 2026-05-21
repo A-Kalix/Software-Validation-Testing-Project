@@ -46,6 +46,7 @@ public class SchedulingController : ControllerBase
         var newSections = new List<Section>();
         var roomOccupancy = new HashSet<string>(); // "RoomID-Day-StartTime"
         var instructorOccupancy = new HashSet<string>(); // "InstructorID-Day-StartTime"
+        var instructorDailyLoads = new Dictionary<string, int>(); // "InstructorID-Day" -> count
 
         // Track already published rooms and instructors for this semester
         var publishedSections = await _context.Sections
@@ -53,9 +54,17 @@ public class SchedulingController : ControllerBase
             .ToListAsync();
 
         foreach(var ps in publishedSections) {
-            roomOccupancy.Add($"{ps.ClassroomId}-{ps.DaysOfWeek}-{ps.StartTime}");
-            instructorOccupancy.Add($"{ps.InstructorId}-{ps.DaysOfWeek}-{ps.StartTime}");
+            var dayString = ps.DaysOfWeek;
+            roomOccupancy.Add($"{ps.ClassroomId}-{dayString}-{ps.StartTime}");
+            instructorOccupancy.Add($"{ps.InstructorId}-{dayString}-{ps.StartTime}");
+            
+            var loadKey = $"{ps.InstructorId}-{dayString}";
+            if (instructorDailyLoads.ContainsKey(loadKey)) instructorDailyLoads[loadKey]++;
+            else instructorDailyLoads[loadKey] = 1;
         }
+
+        // Optimize room capacity fit by prioritizing smaller rooms first to save large lecture halls
+        rooms = rooms.OrderBy(r => r.Capacity).ToList();
 
         // 3. Simple Greedy Allocation Algorithm
         foreach (var course in courses)
@@ -83,9 +92,15 @@ public class SchedulingController : ControllerBase
 
                     var dayString = slot.DayOfWeek.ToString().Substring(0, 3);
                     var instKey = $"{instructor.Id}-{dayString}-{slot.StartTime}";
+                    var loadKey = $"{instructor.Id}-{dayString}";
 
                     // Double-booking protection for instructor
                     if (instructorOccupancy.Contains(instKey))
+                        continue;
+
+                    // Enforce MaxClassesPerDay workload constraint
+                    int currentLoad = instructorDailyLoads.ContainsKey(loadKey) ? instructorDailyLoads[loadKey] : 0;
+                    if (slot.MaxClassesPerDay.HasValue && currentLoad >= slot.MaxClassesPerDay.Value)
                         continue;
 
                     // Try to find an empty room for this slot
@@ -112,6 +127,9 @@ public class SchedulingController : ControllerBase
                             newSections.Add(section);
                             roomOccupancy.Add(roomKey);
                             instructorOccupancy.Add(instKey);
+                            if (instructorDailyLoads.ContainsKey(loadKey)) instructorDailyLoads[loadKey]++;
+                            else instructorDailyLoads[loadKey] = 1;
+                            
                             scheduled = true;
                             break;
                         }
