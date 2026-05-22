@@ -58,15 +58,14 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Chrome
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser
-
       - name: Install backend test dependencies
         run: dotnet restore Backend.Tests.UI/Backend.Tests.UI.csproj
 
       - name: Run Selenium UI tests
+        env:
+          MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_SA_PASSWORD }}
+          UI_TEST_USERNAME: ${{ secrets.UI_TEST_USERNAME }}
+          UI_TEST_PASSWORD: ${{ secrets.UI_TEST_PASSWORD }}
         run: |
           chmod +x scripts/run-selenium-ui.sh
           ./scripts/run-selenium-ui.sh
@@ -86,11 +85,6 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 20
-
-      - name: Install Chrome
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser curl
 
       - name: Run Sonar analysis (coverage + UI tests)
         env:
