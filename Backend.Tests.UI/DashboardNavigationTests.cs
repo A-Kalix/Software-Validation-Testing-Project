@@ -6,12 +6,12 @@ using Xunit;
 
 namespace Backend.Tests.UI;
 
-public class LoginUITests : IDisposable
+public class DashboardNavigationTests : IDisposable
 {
     private readonly IWebDriver _driver;
-    private readonly string _baseUrl = "http://localhost:5173"; // Your Vite Dev Server
+    private readonly string _baseUrl = "http://localhost:5173";
 
-    public LoginUITests()
+    public DashboardNavigationTests()
     {
         var options = new ChromeOptions();
         var runHeadless = Environment.GetEnvironmentVariable("UI_TEST_HEADLESS");
@@ -28,7 +28,7 @@ public class LoginUITests : IDisposable
     }
 
     [Fact]
-    public void Login_WithValidCredentials_ShouldNavigateToDashboard()
+    public void LoginAndNavigateToCourses_ShouldOpenCourseCatalog()
     {
         _driver.Navigate().GoToUrl($"{_baseUrl}/login");
 
@@ -40,14 +40,19 @@ public class LoginUITests : IDisposable
         passwordInput.Clear();
         passwordInput.SendKeys("Demo123!");
 
-        var submitButton = _driver.FindElement(By.CssSelector("button[type='submit']"));
-        submitButton.Click();
+        _driver.FindElement(By.CssSelector("button[type='submit']")).Click();
 
-        var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(15));
+        var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(20));
         wait.Until(d => d.Url.Contains("/dashboard"));
 
-        Assert.Contains("/dashboard", _driver.Url);
-        Assert.NotNull(_driver.FindElement(By.CssSelector("nav")));
+        var courseLink = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.LinkText("Course Catalog")));
+        courseLink.Click();
+
+        wait.Until(d => d.Url.Contains("/dashboard/courses"));
+        Assert.Contains("/dashboard/courses", _driver.Url);
+
+        var header = _driver.FindElement(By.TagName("h1"));
+        Assert.True(header.Text.Contains("Courses") || header.Text.Contains("Course"), "Expected course catalog page header.");
     }
 
     public void Dispose()

@@ -75,7 +75,7 @@ chmod +x scripts/run-sonar.sh
 ```
 
 ## Selenium UI Testing
-The repo already includes Selenium UI tests under `Backend.Tests.UI`. The following script starts the frontend and runs the UI tests.
+The repo already includes Selenium UI tests under `Backend.Tests.UI`. The helper script now starts the database container, backend, and frontend before executing the UI tests.
 
 ```bash
 chmod +x scripts/run-selenium-ui.sh
@@ -86,6 +86,11 @@ If you need to run with browser UI visible, set:
 ```bash
 export UI_TEST_HEADLESS=false
 ./scripts/run-selenium-ui.sh
+```
+
+If you want to only execute the UI tests without the helper script, make sure Docker, the backend, and the frontend are running and then run:
+```bash
+dotnet test Backend.Tests.UI/Backend.Tests.UI.csproj
 ```
 
 ## Database Documentation

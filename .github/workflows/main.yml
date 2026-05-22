@@ -41,3 +41,32 @@ jobs:
         
       - name: Build
         run: cd Frontend && npm run build
+
+  ui-tests:
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-frontend]
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 20
+
+      - name: Install Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser
+
+      - name: Install backend test dependencies
+        run: dotnet restore Backend.Tests.UI/Backend.Tests.UI.csproj
+
+      - name: Run Selenium UI tests
+        run: |
+          chmod +x scripts/run-selenium-ui.sh
+          ./scripts/run-selenium-ui.sh
