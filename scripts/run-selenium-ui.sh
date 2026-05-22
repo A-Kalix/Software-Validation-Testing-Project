@@ -89,8 +89,6 @@ export UI_TEST_HEADLESS=${UI_TEST_HEADLESS:-true}
 mkdir -p TestResults
 
 dotnet test "$TEST_PROJECT" \
-  --collect:"XPlat Code Coverage" \
+  --collect:"XPlat Code Coverage;Format=opencover" \
   --logger "trx;LogFileName=ui.trx" \
-  --results-directory TestResults \
-  /p:CoverletOutputFormat=opencover \
-  /p:CoverletOutput="TestResults/ui-coverage.opencover.xml"
+  --results-directory TestResults

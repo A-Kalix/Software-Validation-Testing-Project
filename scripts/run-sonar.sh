@@ -21,7 +21,7 @@ dotnet sonarscanner begin \
   /k:"software-validation-testing-project" \
   /d:sonar.host.url="${SONAR_HOST_URL:-http://localhost:9000}" \
   /d:sonar.login="$SONAR_TOKEN" \
-  /d:sonar.cs.opencover.reportsPaths="**/TestResults/*-coverage.opencover.xml" \
+  /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" \
   /d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx" \
   /d:sonar.coverage.exclusions="**/Migrations/**,**/obj/**,**/bin/**"
 
@@ -30,11 +30,9 @@ cd ..
 mkdir -p TestResults
 
 dotnet test "Backend.Tests/Backend.Tests.csproj" \
-  --collect:"XPlat Code Coverage" \
+  --collect:"XPlat Code Coverage;Format=opencover" \
   --logger "trx;LogFileName=backend.trx" \
-  --results-directory TestResults \
-  /p:CoverletOutputFormat=opencover \
-  /p:CoverletOutput="TestResults/backend-coverage.opencover.xml"
+  --results-directory TestResults
 
 echo "Starting database, backend, and frontend for UI tests..."
 
@@ -86,10 +84,8 @@ if ! curl -sSf http://127.0.0.1:5173 >/dev/null 2>&1; then
 fi
 
 dotnet test "Backend.Tests.UI/Backend.Tests.UI.csproj" \
-  --collect:"XPlat Code Coverage" \
+  --collect:"XPlat Code Coverage;Format=opencover" \
   --logger "trx;LogFileName=ui.trx" \
-  --results-directory TestResults \
-  /p:CoverletOutputFormat=opencover \
-  /p:CoverletOutput="TestResults/ui-coverage.opencover.xml"
+  --results-directory TestResults
 
 dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"

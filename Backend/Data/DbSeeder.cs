@@ -306,7 +306,10 @@ namespace Backend.Data
                 for (int i = 0; i < 55 && i < allCourses.Count; i++)
                 {
                     var course = allCourses[i];
-                    var instructor = allInstructors.FirstOrDefault(ins => ins.DepartmentId == course.DepartmentId) ?? allInstructors[sectionRng.Next(allInstructors.Count)];
+                    // Ensure the sample instructor 'teacher@university.edu' gets the first 4 sections for dashboard testing
+                    var instructor = (i < 4) 
+                        ? allInstructors.FirstOrDefault(u => u.Email == "teacher@university.edu") ?? allInstructors[0]
+                        : allInstructors.FirstOrDefault(ins => ins.DepartmentId == course.DepartmentId) ?? allInstructors[sectionRng.Next(allInstructors.Count)];
 
                     // Skew room choice to generate high utilization in some rooms
                     var room = sectionRng.NextDouble() < 0.6
