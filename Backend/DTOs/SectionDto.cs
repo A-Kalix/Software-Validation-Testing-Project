@@ -19,6 +19,7 @@ public record SectionResponseDto
     public TimeSpan EndTime { get; set; }
     public int Capacity { get; set; }
     public int EnrolledCount { get; set; }
+    public bool IsPublished { get; set; }
 }
 
 public record SectionCreateDto

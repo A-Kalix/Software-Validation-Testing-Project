@@ -15,6 +15,13 @@ export const enrollmentService = {
   },
 
   /**
+   * Fetches the current student's enrollments.
+   */
+  async getMyEnrollments() {
+    return this.getAll();
+  },
+
+  /**
    * Fetches a specific enrollment by its ID.
    */
   async getById(id) {
@@ -36,5 +43,12 @@ export const enrollmentService = {
   async updateStatus(id, status) {
     const response = await client.put(`/enrollment/${id}/status`, { status });
     return response.data;
+  },
+
+  /**
+   * Student utility to drop a course.
+   */
+  async drop(id) {
+    return this.updateStatus(id, 'Dropped');
   }
 };

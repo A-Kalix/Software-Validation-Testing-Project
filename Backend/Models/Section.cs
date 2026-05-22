@@ -36,6 +36,7 @@ public class Section
     public TimeSpan EndTime { get; set; }
 
     public int Capacity { get; set; }
+    public bool IsPublished { get; set; } = false;
 
     public virtual ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
 }

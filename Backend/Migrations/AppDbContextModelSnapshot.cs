@@ -127,6 +127,37 @@ namespace Backend.Migrations
                     b.ToTable("Enrollments");
                 });
 
+            modelBuilder.Entity("Backend.Models.LecturerAvailability", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("DayOfWeek")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<Guid>("InstructorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsPreferred")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("MaxClassesPerDay")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstructorId");
+
+                    b.ToTable("LecturerAvailabilities");
+                });
+
             modelBuilder.Entity("Backend.Models.Prerequisite", b =>
                 {
                     b.Property<Guid>("Id")
@@ -175,6 +206,9 @@ namespace Backend.Migrations
 
                     b.Property<Guid>("InstructorId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Semester")
                         .IsRequired()
@@ -265,6 +299,17 @@ namespace Backend.Migrations
                     b.Navigation("Section");
 
                     b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("Backend.Models.LecturerAvailability", b =>
+                {
+                    b.HasOne("Backend.Models.User", "Instructor")
+                        .WithMany()
+                        .HasForeignKey("InstructorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Instructor");
                 });
 
             modelBuilder.Entity("Backend.Models.Prerequisite", b =>

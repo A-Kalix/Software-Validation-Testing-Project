@@ -50,6 +50,17 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var connString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+    
+    // Patch any missing schema columns before EF queries run
+    await SchemaFixer.EnsureColumnsExistAsync(connString);
+    
+    await DbSeeder.SeedAsync(context);
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
