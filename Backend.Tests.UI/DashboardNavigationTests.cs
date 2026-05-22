@@ -25,6 +25,7 @@ public class DashboardNavigationTests : IDisposable
 
         _driver = new ChromeDriver(options);
         _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
+        _driver.Manage().Window.Maximize();
     }
 
     [Fact]
@@ -48,7 +49,7 @@ public class DashboardNavigationTests : IDisposable
         var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(20));
         wait.Until(d => d.Url.Contains("/dashboard"));
 
-        var courseLink = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.LinkText("Course Catalog")));
+        var courseLink = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.CssSelector("a.dash-nav-item[href*='/courses']")));
         courseLink.Click();
 
         wait.Until(d => d.Url.Contains("/dashboard/courses"));

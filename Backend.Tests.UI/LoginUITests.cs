@@ -25,6 +25,7 @@ public class LoginUITests : IDisposable
 
         _driver = new ChromeDriver(options);
         _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
+        _driver.Manage().Window.Maximize();
     }
 
     [Fact]

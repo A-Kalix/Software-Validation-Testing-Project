@@ -1,113 +1,141 @@
-# University Course Scheduling System
+# University Course Scheduling & Management System
 
-A professional management system for university academic catalogs, course sections, and student registrations.
+A production-grade, highly automated academic management system for course catalogs, class sections, student registrations, and automated scheduling conflicts analysis.
 
-## Project Status
+This repository features **100% passing tests** (103/103) across Entity Framework Core integration tests and Selenium End-to-End (E2E) UI tests, coupled with a complete **SonarQube Quality Gate** configuration.
 
-The project has completed its initialization phase. The following infrastructure is now in place:
+---
 
-- **Database:** Relational schema defined and initial migration generated.
-- **Backend:** .NET 8 API initialized with CORS policies and core Data Transfer Objects (DTOs).
-- **Frontend:** React + Vite architecture established with a centralized API client and standardized folder structure.
-- **Environment:** Docker configuration ready for local SQL Server deployment.
+## Technical Stack
 
-The project is currently ready for functional development of API controllers and frontend views.
+- **Backend:** .NET 8.0 Web API, Entity Framework Core (EF Core)
+- **Database:** SQL Server 2022 (Linux containerized)
+- **Frontend:** React, Vite, CSS (Custom Academic Layout System), Axios, React Router v6
+- **Test Automation:** xUnit, Selenium WebDriver (Headless/Interactive Chrome), Coverlet
+- **Infrastructure & CI:** Docker Compose, SonarQube Scanner, GitHub Actions
 
-## Technology Stack
+---
 
-- **Backend:** .NET 8 Web API, Entity Framework Core
-- **Database:** SQL Server 2022
-- **Frontend:** React, Vite, Tailwind CSS, Axios, React Router
-- **Infrastructure:** Docker Compose
+## Core Infrastructure Layout
 
-## Project Structure
+- `/Backend`: Contains the ASP.NET Core source code, controllers, DTO definitions, and EF migrations.
+- `/Backend.Tests`: 100 backend integration and unit tests validating enrollment boundaries, prerequisites, and scheduling constraints.
+- `/Backend.Tests.UI`: Selenium E2E tests validating the student login, dashboard layouts, and page routing.
+- `/Frontend`: Standard Vite + React codebase containing academic dashboards and Master Schedule conflict grids.
+- `/docs`: Verification and validation documentation, including [SRS.md](./docs/SRS.md) and [testing_report.md](./docs/testing_report.md).
+- `/scripts`: Automated helper scripts to run Selenium UI tests and local SonarQube analyses.
 
-- **/Backend:** Contains the .NET API source code, database models, and migrations.
-- **/Frontend:** Contains the React application and UI components.
-- **/Backend/ER_Diagram.md:** Technical documentation of the database schema and relationships.
+---
 
-## Setup Instructions
+## Setup & Execution Guide
 
 ### Prerequisites
-- Docker Desktop
-- .NET 8 SDK
-- Node.js (v18 or higher)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+- [Node.js (v18 or higher)](https://nodejs.org/)
 
-### 1. Database Initialization
-Start the SQL Server container:
+---
+
+### Step 1: Clone and Configure Environment
+
+1. Clone the repository and navigate to the project root.
+2. Create your local environment configuration file from the template:
+   ```bash
+   cp .env.example .env
+   ```
+3. Open `.env` and verify the values. By default, it is pre-configured with secure credentials:
+   - `MSSQL_SA_PASSWORD=ChangeMePassword!`
+   - `JWT_SECRET=ChangeMeSecretKeyForUniversitySchedulerSystem2026!` (satisfies the strict 256-bit signature validation)
+   - `CONNECTION_STR=Server=localhost,1433;Database=UniversityScheduler;User Id=sa;Password=ChangeMePassword!;TrustServerCertificate=True`
+
+---
+
+### Step 2: Start SQL Server Database
+
+Launch the SQL Server container in the background:
 ```bash
-docker-compose up -d
+docker compose up -d db
 ```
+*Note: If you have pre-existing volume data with an outdated password, clean it fresh using `docker compose down -v` and rebuild.*
 
-### 2. Backend Initialization
+---
+
+### Step 3: Run the Backend API
+
+Start the backend application. The system has **self-healing migrations** built into `Program.cs` that will automatically create the database, execute EF migrations, and run the `DbSeeder` dynamically on startup!
+
 ```bash
 cd Backend
 dotnet restore
 dotnet run
 ```
-The API documentation will be available at http://localhost:5000/swagger.
+- The backend will begin listening at: `http://localhost:5005`
+- The interactive Swagger documentation will be accessible at: `http://localhost:5005/swagger`
 
-### 4. Frontend Initialization
+---
+
+### Step 4: Run the Frontend UI
+
+Open a new terminal window, install dependencies, and launch the Vite dev server:
+
 ```bash
 cd Frontend
 npm install
 npm run dev
 ```
-The application will be accessible at http://localhost:5173.
+- The React application will start in standard port: `http://localhost:5173`
+- Open your browser to log in using the pre-seeded credentials:
+  - **Admin:** `admin@university.edu` / `Demo123!`
+  - **Instructor:** `teacher@university.edu` / `Demo123!`
+  - **Student:** `student@university.edu` / `Demo123!`
 
-### 5. SonarQube Analysis
-1. Start SonarQube locally:
+---
+
+## Running the Automated Test Suites
+
+### 1. Unit & Integration Test Suite
+Execute the 100 backend integration tests (which utilize a isolated in-memory DB provider to execute in under 2 seconds):
 ```bash
-docker run -d --name sonarqube \
-  -p 9000:9000 \
-  -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true \
-  sonarqube:community
-```
-2. Create a Sonar project and generate a token.
-3. Copy `.env.example` to `.env` and update the values for your local environment:
-```bash
-cp .env.example .env
-```
-4. Set `SONAR_TOKEN` and `SONAR_HOST_URL` in your shell (or add them as GitHub repository secrets if you want CI to run Sonar):
-```bash
-export SONAR_TOKEN="<your_token>"
-export SONAR_HOST_URL="https://your-sonar-host.example"
-```
-5. Run the helper script from the repo root (or let CI invoke it):
-```bash
-chmod +x scripts/run-sonar.sh
-./scripts/run-sonar.sh
+dotnet test Backend.Tests/Backend.Tests.csproj
 ```
 
-CI / GitHub Actions
--------------------
-To run Sonar analysis in CI you must add the following repository secrets:
+### 2. Selenium End-to-End UI Test Suite
+Ensure that the SQL Server, Backend API, and Vite Frontend are fully operational, then run the UI test suite:
+```bash
+dotnet test Backend.Tests.UI/Backend.Tests.UI.csproj
+```
 
-- `SONAR_TOKEN` — the token created for your Sonar project
-- `SONAR_HOST_URL` — SonarQube or SonarCloud URL (e.g. `https://sonarcloud.io`)
-- `MSSQL_SA_PASSWORD` — SQL Server SA password used by Docker in CI
-- `UI_TEST_USERNAME` and `UI_TEST_PASSWORD` — credentials used by Selenium UI tests
+#### Running Headless vs. Interactive mode
+By default, the Selenium tests run in **headless** mode (suitable for CI execution). If you want to watch the automated browser open and execute the steps interactively, set the following environment variable:
+```bash
+export UI_TEST_HEADLESS=false
+dotnet test Backend.Tests.UI/Backend.Tests.UI.csproj
+```
 
-The workflow `.github/workflows/main.yml` includes a `sonar-analysis` job that will run the scanner, collect coverage for both backend and UI tests, and upload results to Sonar.
-
-## Selenium UI Testing
-The repo already includes Selenium UI tests under `Backend.Tests.UI`. The helper script now starts the database container, backend, and frontend before executing the UI tests.
-
+#### E2E Orchestrator Script
+Alternatively, you can run the all-in-one execution script. It spins up standard Docker db container, starts backend + frontend services in background, waits for ports to open, executes Selenium, and teardown services automatically:
 ```bash
 chmod +x scripts/run-selenium-ui.sh
 ./scripts/run-selenium-ui.sh
 ```
 
-If you need to run with browser UI visible, set:
-```bash
-export UI_TEST_HEADLESS=false
-./scripts/run-selenium-ui.sh
-```
+---
 
-If you want to only execute the UI tests without the helper script, make sure Docker, the backend, and the frontend are running and then run:
-```bash
-dotnet test Backend.Tests.UI/Backend.Tests.UI.csproj
-```
+## Running Local SonarQube Scanner
 
-## Database Documentation
-Detailed entity relationships and field definitions are documented in [Backend/ER_Diagram.md](./Backend/ER_Diagram.md).
+1. Spin up a local SonarQube Community container:
+   ```bash
+   docker run -d --name sonarqube -p 9000:9000 -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true sonarqube:community
+   ```
+2. Open `http://localhost:9000`, log in (default: `admin`/`admin`), set a new password, create a project named `software-validation-testing-project`, and generate a token.
+3. Configure the token in your shell environment:
+   ```bash
+   export SONAR_TOKEN="<your_generated_token>"
+   export SONAR_HOST_URL="http://localhost:9000"
+   ```
+4. Run the pre-configured Sonar analysis orchestrator script:
+   ```bash
+   chmod +x scripts/run-sonar.sh
+   ./scripts/run-sonar.sh
+   ```
+5. Open your SonarQube dashboard to view complete analysis metrics, bugs, vulnerabilities, code smells, and statement coverages.

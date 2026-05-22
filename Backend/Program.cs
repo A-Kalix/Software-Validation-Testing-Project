@@ -55,6 +55,12 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     var connString = builder.Configuration.GetConnectionString("DefaultConnection")!;
     
+    // Auto-create database and run all migrations on startup (if using a relational provider)
+    if (context.Database.IsRelational())
+    {
+        await context.Database.MigrateAsync();
+    }
+    
     // Patch any missing schema columns before EF queries run
     await SchemaFixer.EnsureColumnsExistAsync(connString);
     
