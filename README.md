@@ -47,13 +47,32 @@ dotnet run
 ```
 The API documentation will be available at http://localhost:5000/swagger.
 
-### 3. Frontend Initialization
+### 4. Frontend Initialization
 ```bash
 cd Frontend
 npm install
 npm run dev
 ```
 The application will be accessible at http://localhost:5173.
+
+### 5. SonarQube Analysis
+1. Start SonarQube locally:
+```bash
+docker run -d --name sonarqube \
+  -p 9000:9000 \
+  -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true \
+  sonarqube:community
+```
+2. Create a Sonar project and generate a token.
+3. Set `SONAR_TOKEN` in your shell:
+```bash
+export SONAR_TOKEN="<your_token>"
+```
+4. Run the helper script from the repo root:
+```bash
+chmod +x scripts/run-sonar.sh
+./scripts/run-sonar.sh
+```
 
 ## Database Documentation
 Detailed entity relationships and field definitions are documented in [Backend/ER_Diagram.md](./Backend/ER_Diagram.md).
