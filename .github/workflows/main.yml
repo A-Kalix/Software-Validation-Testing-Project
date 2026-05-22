@@ -86,6 +86,9 @@ jobs:
         with:
           node-version: 20
 
+      - name: Install SonarScanner
+        run: dotnet tool install --global dotnet-sonarscanner
+
       - name: Run Sonar analysis (coverage + UI tests)
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
