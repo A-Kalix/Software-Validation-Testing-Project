@@ -13,9 +13,11 @@ if [ -f ".env" ]; then
   set +o allexport
 fi
 
+# Ensure .NET tools are on the PATH
+export PATH="$PATH:$HOME/.dotnet/tools"
+
 # restore and build the backend
-cd Backend
-dotnet restore
+dotnet restore Backend/Backend.csproj
 
 dotnet sonarscanner begin \
   /k:"software-validation-testing-project" \
@@ -25,8 +27,7 @@ dotnet sonarscanner begin \
   /d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx" \
   /d:sonar.coverage.exclusions="**/Migrations/**,**/obj/**,**/bin/**"
 
-dotnet build
-cd ..
+dotnet build Backend/Backend.csproj
 mkdir -p TestResults
 
 dotnet test "Backend.Tests/Backend.Tests.csproj" \
