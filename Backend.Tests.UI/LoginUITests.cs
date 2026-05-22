@@ -14,7 +14,15 @@ public class LoginUITests : IDisposable
     public LoginUITests()
     {
         var options = new ChromeOptions();
-        // options.AddArgument("--headless"); // Uncomment to run without opening a window
+        var runHeadless = Environment.GetEnvironmentVariable("UI_TEST_HEADLESS");
+        if (string.IsNullOrEmpty(runHeadless) || runHeadless.Equals("true", StringComparison.OrdinalIgnoreCase))
+        {
+            options.AddArgument("--headless=new");
+            options.AddArgument("--disable-gpu");
+            options.AddArgument("--no-sandbox");
+            options.AddArgument("--disable-dev-shm-usage");
+        }
+
         _driver = new ChromeDriver(options);
         _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
     }

@@ -74,5 +74,19 @@ chmod +x scripts/run-sonar.sh
 ./scripts/run-sonar.sh
 ```
 
+## Selenium UI Testing
+The repo already includes Selenium UI tests under `Backend.Tests.UI`. The following script starts the frontend and runs the UI tests.
+
+```bash
+chmod +x scripts/run-selenium-ui.sh
+./scripts/run-selenium-ui.sh
+```
+
+If you need to run with browser UI visible, set:
+```bash
+export UI_TEST_HEADLESS=false
+./scripts/run-selenium-ui.sh
+```
+
 ## Database Documentation
 Detailed entity relationships and field definitions are documented in [Backend/ER_Diagram.md](./Backend/ER_Diagram.md).
