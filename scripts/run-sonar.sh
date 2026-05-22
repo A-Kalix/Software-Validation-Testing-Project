@@ -39,6 +39,9 @@ echo "Starting database, backend, and frontend for UI tests..."
 # Start database container
 docker compose up -d db
 
+echo "Waiting for SQL Server to boot..."
+sleep 15
+
 # Start backend server
 DOTNET_BACKEND_LOG="/tmp/backend-sonar.log"
 cd Backend

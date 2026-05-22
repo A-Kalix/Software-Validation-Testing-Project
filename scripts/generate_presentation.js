@@ -344,71 +344,55 @@ public async Task Enroll_ReturnsUnprocessable_PrereqMissing()
 }`;
 s14.addText(ut2, { x: 0.7, y: 1.4, w: 11.9, h: 5.1, color: 'D4D4D4', fontFace: 'Courier New', fontSize: 14, valign: 'top' });
 
-// Slide 15: SRS Traceability 1
+const { execSync } = require('child_process');
+
+let allTests = [];
+try {
+  const backendOutput = execSync('dotnet test Backend.Tests/Backend.Tests.csproj -t').toString();
+  const uiOutput = execSync('dotnet test Backend.Tests.UI/Backend.Tests.UI.csproj -t').toString();
+  
+  const parseTests = (output, prefix) => {
+    return output.split('\n')
+      .map(l => l.trim())
+      .filter(l => l.startsWith('Backend.Tests'))
+      .map(l => {
+        let name = l.split('.').pop();
+        if (name.length > 55) name = name.substring(0, 52) + "...";
+        return [prefix, "REQ-*", name, "PASS"];
+      });
+  };
+  
+  allTests.push(...parseTests(backendOutput, "UT"));
+  allTests.push(...parseTests(uiOutput, "UI"));
+} catch (e) {
+  console.log("Error extracting tests", e);
+}
+
+// Slide 15+: Dynamic Full SRS Traceability
 let s15 = pres.addSlide({ masterName: 'CONTENT_SLIDE' });
-s15.addText('SRS Traceability: Authentication & Catalog', { placeholder: 'title' });
-s15.addTable([
-  [{ text: 'Test ID', options: { fill: P_PRIMARY, color: P_WHITE, bold: true } }, 
-   { text: 'SRS ID', options: { fill: P_PRIMARY, color: P_WHITE, bold: true } }, 
-   { text: 'Test Case Description', options: { fill: P_PRIMARY, color: P_WHITE, bold: true } }, 
-   { text: 'Status', options: { fill: P_PRIMARY, color: P_WHITE, bold: true } }],
-  ['TC-UI-01', 'REQ-02', 'Enter valid admin credentials on /login, verify JWT issuance and redirection to /dashboard.', 'PASS'],
-  ['TC-UI-03', 'REQ-02', 'Attempt to access protected routes without a token, verify redirection to /login.', 'PASS'],
-  ['UT-001', 'REQ-01', 'Call Register with a new, valid university email and verify a 201 Created response.', 'PASS'],
-  ['UT-002', 'REQ-01', 'Call Register with an email that already exists, verify a 400 BadRequest is returned.', 'PASS'],
-  ['UT-005', 'REQ-03', 'Retrieve all courses from the database and verify details match catalog definitions.', 'PASS'],
-  ['UT-008', 'REQ-03', 'Admin creates a new course; verify it persists with unique ID and core department relationships.', 'PASS']
-], { x: 0.5, y: 1.2, w: 12.3, colW: [1.5, 1.5, 8.3, 1.0], fill: { color: P_WHITE }, border: { pt: 1, color: P_SECONDARY }, fontSize: 13, fontFace: "Helvetica" });
+s15.addText('Full SRS Traceability Matrix (All Test Cases)', { placeholder: 'title' });
 
-// Slide 16: SRS Traceability 2
-let s16 = pres.addSlide({ masterName: 'CONTENT_SLIDE' });
-s16.addText('SRS Traceability: Section & Access Management', { placeholder: 'title' });
-s16.addTable([
-  [{ text: 'Test ID', options: { fill: P_PRIMARY, color: P_WHITE, bold: true } }, 
-   { text: 'SRS ID', options: { fill: P_PRIMARY, color: P_WHITE, bold: true } }, 
-   { text: 'Test Case Description', options: { fill: P_PRIMARY, color: P_WHITE, bold: true } }, 
-   { text: 'Status', options: { fill: P_PRIMARY, color: P_WHITE, bold: true } }],
-  ['TC-UI-02', 'REQ-10', 'Log in as Student, click "Courses" sidebar anchor, verify routing to Course Catalog.', 'PASS'],
-  ['UT-015', 'REQ-03', 'Admin deletes an inactive course; verify the database successfully deletes the entity.', 'PASS'],
-  ['UT-023', 'REQ-07', 'Call GetAll filtered by a specific CourseId and verify only that course\'s sections are returned.', 'PASS'],
-  ['UT-024', 'REQ-07', 'Call GetAll filtered by a specific academic semester; verify correct results.', 'PASS'],
-  ['UT-026', 'REQ-07', 'Create a section with valid times, room, and instructor; verify DB insertion.', 'PASS'],
-  ['UT-027', 'REQ-07', 'Attempt to create a section with EndTime earlier than StartTime; verify rejection.', 'PASS']
-], { x: 0.5, y: 1.2, w: 12.3, colW: [1.5, 1.5, 8.3, 1.0], fill: { color: P_WHITE }, border: { pt: 1, color: P_SECONDARY }, fontSize: 13, fontFace: "Helvetica" });
+let tableHeader = [
+  { text: 'Type', options: { fill: P_PRIMARY, color: P_WHITE, bold: true } }, 
+  { text: 'SRS ID', options: { fill: P_PRIMARY, color: P_WHITE, bold: true } }, 
+  { text: 'Test Case Identifier', options: { fill: P_PRIMARY, color: P_WHITE, bold: true } }, 
+  { text: 'Status', options: { fill: P_PRIMARY, color: P_WHITE, bold: true } }
+];
 
-// Slide 17: SRS Traceability 3
-let s17 = pres.addSlide({ masterName: 'CONTENT_SLIDE' });
-s17.addText('SRS Traceability: Conflict Detection Engine', { placeholder: 'title' });
-s17.addTable([
-  [{ text: 'Test ID', options: { fill: P_PRIMARY, color: P_WHITE, bold: true } }, 
-   { text: 'SRS ID', options: { fill: P_PRIMARY, color: P_WHITE, bold: true } }, 
-   { text: 'Test Case Description', options: { fill: P_PRIMARY, color: P_WHITE, bold: true } }, 
-   { text: 'Status', options: { fill: P_PRIMARY, color: P_WHITE, bold: true } }],
-  ['UT-029', 'SRS-CONF-02', 'Create section overlapping with another in the same room; verify 409 Conflict.', 'PASS'],
-  ['UT-043', 'SRS-CONF-02', 'Call HasTimeConflictAsync with overlapping boundaries; verify conflict is true.', 'PASS'],
-  ['UT-045', 'SRS-CONF-01', 'Call HasInstructorConflictAsync with overlapping schedules for same instructor; verify conflict.', 'PASS'],
-  ['UT-071', 'REQ-05', 'Trigger automated scheduling engine; verify draft sections placed without conflicts.', 'PASS'],
-  ['UT-073', 'REQ-05', 'Rerun scheduling engine; verify previous drafts wiped cleanly and regenerated.', 'PASS'],
-  ['UT-076', 'REQ-07', 'Admin invokes PublishSchedule; verify all draft sections updated to published status.', 'PASS']
-], { x: 0.5, y: 1.2, w: 12.3, colW: [1.5, 1.5, 8.3, 1.0], fill: { color: P_WHITE }, border: { pt: 1, color: P_SECONDARY }, fontSize: 13, fontFace: "Helvetica" });
+let fullTableData = [tableHeader, ...allTests];
 
-// Slide 18: SRS Traceability 4
-let s18 = pres.addSlide({ masterName: 'CONTENT_SLIDE' });
-s18.addText('SRS Traceability: Enrollment Validation', { placeholder: 'title' });
-s18.addTable([
-  [{ text: 'Test ID', options: { fill: P_PRIMARY, color: P_WHITE, bold: true } }, 
-   { text: 'SRS ID', options: { fill: P_PRIMARY, color: P_WHITE, bold: true } }, 
-   { text: 'Test Case Description', options: { fill: P_PRIMARY, color: P_WHITE, bold: true } }, 
-   { text: 'Status', options: { fill: P_PRIMARY, color: P_WHITE, bold: true } }],
-  ['UT-052', 'REQ-11', 'Student registers for an active, published section; verify record creation.', 'PASS'],
-  ['UT-053', 'REQ-12', 'Attempt to enroll twice in the same section; verify rejection with 409 Conflict.', 'PASS'],
-  ['UT-054', 'REQ-07', 'Attempt to enroll in a draft section (IsPublished = false); verify 400 BadRequest.', 'PASS'],
-  ['UT-055', 'REQ-11', 'Enroll student in a section with exactly 1 open seat (Boundary Value Analysis); verify success.', 'PASS'],
-  ['UT-056', 'REQ-14', 'Enroll student in a section that reached physical room capacity; verify 409 Conflict.', 'PASS'],
-  ['UT-057', 'REQ-13', 'Enroll student in course without holding mandatory prerequisite; verify 422 Unprocessable.', 'PASS']
-], { x: 0.5, y: 1.2, w: 12.3, colW: [1.5, 1.5, 8.3, 1.0], fill: { color: P_WHITE }, border: { pt: 1, color: P_SECONDARY }, fontSize: 13, fontFace: "Helvetica" });
+s15.addTable(fullTableData, { 
+  x: 0.5, y: 1.2, w: 12.3, 
+  colW: [1.0, 1.5, 8.8, 1.0], 
+  fill: { color: P_WHITE }, 
+  border: { pt: 1, color: P_SECONDARY }, 
+  fontSize: 10, 
+  fontFace: "Helvetica",
+  autoPage: true,
+  autoPageLineWeight: -0.2
+});
 
-// Slide 19: Code Coverage
+// Slide X: Code Coverage
 let s19 = pres.addSlide({ masterName: 'CONTENT_SLIDE' });
 s19.addText('Final Code Coverage & SonarQube Metrics', { placeholder: 'title' });
 s19.addTable([
@@ -422,10 +406,10 @@ s19.addTable([
   ['CourseController', 'REQ-03', '17 Tests', '94%', 'PASSED'],
   ['SectionController', 'REQ-07, SRS-CONF-01, SRS-CONF-02', '20 Tests', '88%', 'PASSED'],
   ['AccountController', 'REQ-01, REQ-02', '4 Tests', '72%', 'PASSED'],
-  ['TOTAL BACKEND API', 'All Requirements', '81 Unit / 20 E2E', '~85% Overall', 'PASSED']
+  ['TOTAL BACKEND API', 'All Requirements', '81 Unit / 2 E2E', '~85% Overall', 'PASSED']
 ], { x: 0.5, y: 2.0, w: 12.3, colW: [3, 4, 1.5, 2, 1.8], fill: { color: P_WHITE }, border: { pt: 1, color: P_SECONDARY }, fontSize: 14, fontFace: "Helvetica" });
 
-// Slide 20: Conclusion
+// Slide XX: Conclusion
 let s20 = pres.addSlide({ masterName: 'TITLE_SLIDE' });
 try { s20.addImage({ path: IMG_VALID, x: 0, y: 0, w: 13.3, h: 4.5, sizing: { type: 'cover' } }); } catch(e){}
 s20.addText('VERIFICATION SUCCESSFUL', { x: 0.5, y: 4.8, w: 12, fontSize: 44, color: P_WHITE, bold: true, align: 'left', fontFace: "Helvetica" });

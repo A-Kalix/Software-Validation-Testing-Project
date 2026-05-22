@@ -21,6 +21,9 @@ fi
 # Start database container if not already running
 docker compose up -d db
 
+echo "Waiting for SQL Server to boot..."
+sleep 15
+
 # Start backend
 cd "$BACKEND_DIR"
 dotnet restore
