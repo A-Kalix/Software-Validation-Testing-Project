@@ -59,10 +59,9 @@ using (var scope = app.Services.CreateScope())
     if (context.Database.IsRelational())
     {
         await context.Database.MigrateAsync();
+        // Patch any missing schema columns before EF queries run
+        await SchemaFixer.EnsureColumnsExistAsync(connString);
     }
-    
-    // Patch any missing schema columns before EF queries run
-    await SchemaFixer.EnsureColumnsExistAsync(connString);
     
     await DbSeeder.SeedAsync(context);
 }
