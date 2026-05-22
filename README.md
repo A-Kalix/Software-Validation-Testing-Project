@@ -68,15 +68,27 @@ docker run -d --name sonarqube \
 ```bash
 cp .env.example .env
 ```
-4. Set `SONAR_TOKEN` in your shell:
+4. Set `SONAR_TOKEN` and `SONAR_HOST_URL` in your shell (or add them as GitHub repository secrets if you want CI to run Sonar):
 ```bash
 export SONAR_TOKEN="<your_token>"
+export SONAR_HOST_URL="https://your-sonar-host.example"
 ```
-5. Run the helper script from the repo root:
+5. Run the helper script from the repo root (or let CI invoke it):
 ```bash
 chmod +x scripts/run-sonar.sh
 ./scripts/run-sonar.sh
 ```
+
+CI / GitHub Actions
+-------------------
+To run Sonar analysis in CI you must add the following repository secrets:
+
+- `SONAR_TOKEN` — the token created for your Sonar project
+- `SONAR_HOST_URL` — SonarQube or SonarCloud URL (e.g. `https://sonarcloud.io`)
+- `MSSQL_SA_PASSWORD` — SQL Server SA password used by Docker in CI
+- `UI_TEST_USERNAME` and `UI_TEST_PASSWORD` — credentials used by Selenium UI tests
+
+The workflow `.github/workflows/main.yml` includes a `sonar-analysis` job that will run the scanner, collect coverage for both backend and UI tests, and upload results to Sonar.
 
 ## Selenium UI Testing
 The repo already includes Selenium UI tests under `Backend.Tests.UI`. The helper script now starts the database container, backend, and frontend before executing the UI tests.

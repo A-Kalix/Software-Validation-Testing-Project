@@ -86,4 +86,11 @@ fi
 cd "$ROOT_DIR"
 export UI_TEST_HEADLESS=${UI_TEST_HEADLESS:-true}
 
-dotnet test "$TEST_PROJECT"
+mkdir -p TestResults
+
+dotnet test "$TEST_PROJECT" \
+  --collect:"XPlat Code Coverage" \
+  --logger "trx;LogFileName=ui.trx" \
+  --results-directory TestResults \
+  /p:CoverletOutputFormat=cobertura \
+  /p:CoverletOutput="TestResults/ui-coverage.cobertura.xml"
