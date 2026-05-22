@@ -92,5 +92,5 @@ dotnet test "$TEST_PROJECT" \
   --collect:"XPlat Code Coverage" \
   --logger "trx;LogFileName=ui.trx" \
   --results-directory TestResults \
-  /p:CoverletOutputFormat=cobertura \
-  /p:CoverletOutput="TestResults/ui-coverage.cobertura.xml"
+  /p:CoverletOutputFormat=opencover \
+  /p:CoverletOutput="TestResults/ui-coverage.opencover.xml"
