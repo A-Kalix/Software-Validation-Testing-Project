@@ -609,7 +609,8 @@
     @apply p-4;
   }
 
-  .dash-modal {
+  .dash-modal,
+  .dash-modal-card {
     @apply w-full;
     @apply max-w-lg;
     @apply bg-slate-900;
@@ -618,6 +619,41 @@
     @apply rounded-2xl;
     @apply shadow-2xl;
     @apply p-6;
+    @apply overflow-y-auto;
+    max-height: 90vh;
+  }
+
+  .dash-modal-title {
+    @apply text-lg;
+    @apply font-semibold;
+    @apply text-white;
+  }
+
+  .dash-form-body {
+    @apply space-y-5;
+    @apply mt-6;
+  }
+
+  .dash-form-grid {
+    @apply grid;
+    @apply gap-4;
+  }
+
+  .dash-secondary-btn {
+    @apply px-4;
+    @apply py-2;
+    @apply rounded-lg;
+    @apply text-sm;
+    @apply font-medium;
+    @apply text-slate-300;
+    @apply bg-slate-800;
+    @apply hover:bg-slate-700;
+    @apply border;
+    @apply border-slate-700;
+    @apply transition-colors;
+    @apply flex;
+    @apply items-center;
+    @apply gap-2;
   }
 
   .dash-modal-header {
@@ -648,6 +684,70 @@
     @apply pt-6;
     @apply border-t;
     @apply border-slate-800;
+  }
+
+  /* Form Input Elements */
+  .dash-input-group {
+    @apply flex;
+    @apply flex-col;
+    @apply gap-1.5;
+  }
+
+  .dash-input-label {
+    @apply text-sm;
+    @apply font-medium;
+    @apply text-slate-300;
+  }
+
+  .dash-input {
+    @apply w-full;
+    @apply px-3;
+    @apply py-2.5;
+    @apply rounded-lg;
+    @apply text-sm;
+    @apply text-white;
+    @apply bg-slate-800;
+    @apply border;
+    @apply border-slate-700;
+    @apply outline-none;
+    @apply transition-colors;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .dash-input:focus {
+    @apply border-indigo-500;
+    @apply ring-1;
+    @apply ring-indigo-500/30;
+  }
+
+  .dash-input::placeholder {
+    @apply text-slate-500;
+  }
+
+  /* Select styling */
+  select.dash-input {
+    @apply pr-8;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 16px;
+  }
+
+  select.dash-input option {
+    @apply bg-slate-800;
+    @apply text-white;
+  }
+
+  /* Number and time inputs */
+  input[type="number"].dash-input,
+  input[type="time"].dash-input {
+    @apply bg-slate-800;
+    @apply text-white;
+  }
+
+  input[type="time"].dash-input::-webkit-calendar-picker-indicator {
+    filter: invert(0.7);
   }
 
   /* Misc */
@@ -725,5 +825,100 @@
     @apply items-start;
     @apply sm:items-center;
     @apply gap-4;
+  }
+
+  /* Timetable Grid System */
+  .dash-timetable-wrapper {
+    @apply border;
+    @apply border-slate-800;
+    @apply rounded-xl;
+    @apply overflow-hidden;
+    @apply bg-slate-900/30;
+  }
+
+  .dash-grid-calendar {
+    @apply grid;
+    @apply grid-cols-[100px_repeat(5,1fr)];
+    @apply border-b;
+    @apply border-slate-800;
+  }
+
+  .dash-grid-calendar:last-child {
+    @apply border-b-0;
+  }
+
+  .dash-grid-header,
+  .dash-grid-day-header {
+    @apply p-4;
+    @apply text-sm;
+    @apply font-semibold;
+    @apply text-slate-300;
+    @apply border-r;
+    @apply border-slate-800;
+    @apply text-center;
+    @apply bg-slate-900;
+  }
+
+  .dash-grid-header {
+    @apply text-left;
+  }
+
+  .dash-grid-day-header:last-child {
+    @apply border-r-0;
+  }
+
+  .dash-grid-cell-label {
+    @apply p-4;
+    @apply text-sm;
+    @apply font-medium;
+    @apply text-slate-400;
+    @apply border-r;
+    @apply border-slate-800;
+    @apply flex;
+    @apply items-center;
+    @apply bg-slate-900/50;
+  }
+
+  .dash-grid-slot {
+    @apply border-r;
+    @apply border-slate-800;
+    @apply relative;
+    @apply cursor-pointer;
+    @apply transition-colors;
+    @apply duration-200;
+    @apply hover:bg-slate-800/40;
+    @apply p-2;
+  }
+
+  .dash-grid-slot:last-child {
+    @apply border-r-0;
+  }
+
+  .dash-grid-slot-inner {
+    @apply w-full;
+    @apply h-full;
+    @apply rounded-lg;
+    @apply border-2;
+    @apply border-dashed;
+    @apply border-slate-700/50;
+    @apply transition-all;
+    @apply duration-200;
+  }
+
+  .dash-grid-slot:hover .dash-grid-slot-inner {
+    @apply border-indigo-500/50;
+  }
+
+  .dash-grid-slot-selected {
+    @apply w-full;
+    @apply h-full;
+    @apply bg-indigo-500/20;
+    @apply border-2;
+    @apply border-indigo-500;
+    @apply rounded-lg;
+    @apply flex;
+    @apply items-center;
+    @apply justify-center;
+    @apply shadow-[inset_0_0_15px_rgba(99,102,241,0.2)];
   }
 }

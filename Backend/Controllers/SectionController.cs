@@ -234,6 +234,7 @@ public class SectionController : ControllerBase
     /// True if the classroom has another section in the same semester whose
     /// DaysOfWeek overlap AND whose time window overlaps with [start, end).
     /// </summary>
+    [NonAction]
     public async Task<bool> HasTimeConflictAsync(
         Guid classroomId, string semester, string daysOfWeek,
         TimeSpan start, TimeSpan end, Guid? excludeSectionId = null)
@@ -253,6 +254,7 @@ public class SectionController : ControllerBase
     /// True if the instructor is already teaching another section in the same
     /// semester with overlapping days and times.
     /// </summary>
+    [NonAction]
     public async Task<bool> HasInstructorConflictAsync(
         Guid instructorId, string semester, string daysOfWeek,
         TimeSpan start, TimeSpan end, Guid? excludeSectionId = null)
@@ -272,6 +274,7 @@ public class SectionController : ControllerBase
     /// Returns true when two day strings share at least one day character.
     /// e.g. "MWF" and "TTh" → false; "MWF" and "MW" → true.
     /// </summary>
+    [NonAction]
     public static bool SharesDay(string a, string b) =>
         a.Any(c => b.Contains(c, StringComparison.OrdinalIgnoreCase));
 
@@ -296,6 +299,7 @@ public class SectionController : ControllerBase
         StartTime = s.StartTime,
         EndTime = s.EndTime,
         Capacity = s.Capacity,
-        EnrolledCount = s.Enrollments?.Count(e => e.Status == EnrollmentStatus.Active) ?? 0
+        EnrolledCount = s.Enrollments?.Count(e => e.Status == EnrollmentStatus.Active) ?? 0,
+        IsPublished = s.IsPublished
     };
 }

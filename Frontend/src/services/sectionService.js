@@ -11,22 +11,35 @@ export const sectionService = {
     return response.data;
   },
 
+  async create(data) {
+    const response = await client.post('/section', data);
+    return response.data;
+  },
+
+  async update(id, data) {
+    const response = await client.put(`/section/${id}`, data);
+    return response.data;
+  },
+
   async delete(id) {
     await client.delete(`/section/${id}`);
   },
 
   async runScheduler(semester) {
-    const response = await client.post(`/scheduling/run?semester=${semester}`);
+    const encoded = encodeURIComponent(semester);
+    const response = await client.post(`/scheduling/run?semester=${encoded}`);
     return response.data;
   },
 
   async publishSchedule(semester) {
-    const response = await client.post(`/scheduling/publish?semester=${semester}`);
+    const encoded = encodeURIComponent(semester);
+    const response = await client.post(`/scheduling/publish?semester=${encoded}`);
     return response.data;
   },
 
   async getSemesterStatus(semester) {
-    const response = await client.get(`/scheduling/status?semester=${semester}`);
+    const encoded = encodeURIComponent(semester);
+    const response = await client.get(`/scheduling/status?semester=${encoded}`);
     return response.data;
   }
 };

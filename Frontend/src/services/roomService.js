@@ -1,33 +1,27 @@
-import axios from 'axios';
-
-const API_URL = 'http://localhost:5001/api/Classroom';
-
-const getAuthHeader = () => {
-  const user = JSON.parse(localStorage.getItem('user'));
-  return user?.token ? { Authorization: `Bearer ${user.token}` } : {};
-};
+import client from '../api/client';
 
 export const roomService = {
   getAll: async () => {
-    const response = await axios.get(API_URL, { headers: getAuthHeader() });
+    const response = await client.get('/classroom');
     return response.data;
   },
 
   getById: async (id) => {
-    const response = await axios.get(`${API_URL}/${id}`, { headers: getAuthHeader() });
+    const response = await client.get(`/classroom/${id}`);
     return response.data;
   },
 
   create: async (roomData) => {
-    const response = await axios.post(API_URL, roomData, { headers: getAuthHeader() });
+    const response = await client.post('/classroom', roomData);
     return response.data;
   },
 
   update: async (id, roomData) => {
-    await axios.put(`${API_URL}/${id}`, roomData, { headers: getAuthHeader() });
+    const response = await client.put(`/classroom/${id}`, roomData);
+    return response.data;
   },
 
   delete: async (id) => {
-    await axios.delete(`${API_URL}/${id}`, { headers: getAuthHeader() });
+    await client.delete(`/classroom/${id}`);
   }
 };

@@ -37,12 +37,13 @@ export default function DashboardLayout() {
   const getNavItems = () => {
     if (role === 'Admin') {
       return [
-        { name: 'Overview',         path: '/dashboard',                  icon: LayoutDashboard },
-        { name: 'Master Schedule',  path: '/dashboard/master-schedule',  icon: LayoutGrid },
-        { name: 'Room Management',  path: '/dashboard/rooms',            icon: Building2 },
-        { name: 'Course Catalog',   path: '/dashboard/courses',          icon: BookOpen },
-        { name: 'Manage Sections',  path: '/dashboard/sections',         icon: ClipboardList },
-        { name: 'Manage Users',     path: '/dashboard/users',            icon: Users },
+        { name: 'Overview',                path: '/dashboard',                          icon: LayoutDashboard },
+        { name: 'Master Schedule',         path: '/dashboard/master-schedule',          icon: LayoutGrid },
+        { name: 'Room Management',         path: '/dashboard/rooms',                    icon: Building2 },
+        { name: 'Course Catalog',          path: '/dashboard/courses',                  icon: BookOpen },
+        { name: 'Manage Sections',         path: '/dashboard/sections',                 icon: ClipboardList },
+        { name: 'Manage Users',            path: '/dashboard/users',                    icon: Users },
+        { name: 'Instructor Availability', path: '/dashboard/instructor-availability',  icon: CalendarDays },
       ];
     }
 
@@ -56,10 +57,11 @@ export default function DashboardLayout() {
 
     // Student
     return [
-      { name: 'Overview',     path: '/dashboard',           icon: LayoutDashboard },
-      { name: 'My Schedule',  path: '/dashboard/schedule',  icon: CalendarDays },
-      { name: 'Courses',      path: '/dashboard/courses',   icon: BookOpen },
-      { name: 'Enroll',       path: '/dashboard/sections',  icon: BookMarked },
+      { name: 'Overview',     path: '/dashboard',              icon: LayoutDashboard },
+      { name: 'My Schedule',  path: '/dashboard/schedule',     icon: CalendarDays },
+      { name: 'My Courses',   path: '/dashboard/my-courses',   icon: GraduationCap },
+      { name: 'Courses',      path: '/dashboard/courses',      icon: BookOpen },
+      { name: 'Enroll',       path: '/dashboard/sections',     icon: BookMarked },
     ];
   };
 
@@ -78,7 +80,9 @@ export default function DashboardLayout() {
         <nav className="dash-sidebar-nav">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+            const isActive = item.path === '/dashboard'
+              ? location.pathname === item.path
+              : location.pathname.startsWith(item.path);
             return (
               <Link
                 key={item.name}

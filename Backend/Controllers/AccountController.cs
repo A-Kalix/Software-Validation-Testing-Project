@@ -148,6 +148,73 @@ namespace Backend.Controllers
             return NoContent();
         }
 
+        [HttpGet("users")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<IEnumerable<UserResponseDTO>>> GetAllUsers()
+        {
+            var users = await _context.Users
+                .Include(u => u.Department)
+                .ToListAsync();
+
+            var response = users.Select(u => MapToResponse(u, u.Department?.Name ?? "Unknown"));
+            return Ok(response);
+        }
+
+        [HttpDelete("users/{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUser(Guid id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null) return NotFound();
+
+            // Prevent deleting the last admin
+            if (user.Role == UserRole.Admin)
+            {
+                var adminCount = await _context.Users.CountAsync(u => u.Role == UserRole.Admin);
+                if (adminCount <= 1)
+                {
+                    return BadRequest("Cannot delete the last remaining Admin.");
+                }
+            }
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPut("users/{id}/role")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<UserResponseDTO>> UpdateUserRole(Guid id, [FromBody] Backend.DTOs.UpdateRoleDTO request)
+        {
+            var user = await _context.Users
+                .Include(u => u.Department)
+                .FirstOrDefaultAsync(u => u.Id == id);
+                
+            if (user == null) return NotFound();
+
+            if (!Enum.TryParse<UserRole>(request.Role, out var newRole))
+            {
+                return BadRequest("Invalid role specified.");
+            }
+
+            // Prevent last admin from demoting themselves
+            if (user.Role == UserRole.Admin && newRole != UserRole.Admin)
+            {
+                var adminCount = await _context.Users.CountAsync(u => u.Role == UserRole.Admin);
+                if (adminCount <= 1)
+                {
+                    return BadRequest("Cannot change role of the last remaining Admin.");
+                }
+            }
+
+            user.Role = newRole;
+            user.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            return Ok(MapToResponse(user, user.Department?.Name ?? "Unknown"));
+        }
+
         private Guid GetUserIdFromToken()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst(JwtRegisteredClaimNames.Sub);

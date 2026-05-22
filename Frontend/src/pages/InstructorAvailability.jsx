@@ -9,6 +9,7 @@ const InstructorAvailability = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
+  // C# DayOfWeek: 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
   const dayMap = { 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5 };
   const revDayMap = { 1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday' };
@@ -25,8 +26,8 @@ const InstructorAvailability = () => {
   const fetchAvailability = async () => {
     try {
       const data = await availabilityService.getMyAvailability();
-      // Map API objects to Grid strings "Day-Time"
-      const gridSlots = data.map(slot => `${revDayMap[slot.dayOfWeek]}-${slot.startTime}`);
+      // Map API objects to Grid strings "Day|Time" (use | not - to avoid conflicts with day names)
+      const gridSlots = data.map(slot => `${revDayMap[slot.dayOfWeek]}|${slot.startTime.substring(0, 5)}`);
       setAvailability(gridSlots);
     } catch (error) {
       toast.error('Failed to load availability');
@@ -36,7 +37,7 @@ const InstructorAvailability = () => {
   };
 
   const toggleSlot = (day, time) => {
-    const slotId = `${day}-${time}`;
+    const slotId = `${day}|${time}`;
     setAvailability(prev => {
       if (prev.includes(slotId)) {
         return prev.filter(s => s !== slotId);
@@ -48,21 +49,25 @@ const InstructorAvailability = () => {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // Map Grid strings back to API objects
+      // Map Grid strings back to API objects — split on | to avoid day-name confusion
       const payload = availability.map(slotId => {
-        const [day, time] = slotId.split('-');
+        const separatorIdx = slotId.indexOf('|');
+        const day = slotId.substring(0, separatorIdx);
+        const time = slotId.substring(separatorIdx + 1);
+        const endHour = (parseInt(time.split(':')[0]) + 1).toString().padStart(2, '0');
         return {
           dayOfWeek: dayMap[day],
           startTime: time,
-          endTime: `${(parseInt(time.split(':')[0]) + 1).toString().padStart(2, '0')}:00`, // 1 hour slots
+          endTime: `${endHour}:00`,
           isPreferred: true
         };
       });
 
       await availabilityService.updateBulk(payload);
-      toast.success('Availability preferences saved successfully');
+      toast.success(`Preferences saved! ${payload.length} time slot${payload.length !== 1 ? 's' : ''} updated.`);
     } catch (error) {
-      toast.error('Failed to save preferences');
+      console.error('Save availability error:', error.response?.data ?? error.message);
+      toast.error(`Failed to save preferences: ${error.response?.data?.message || error.message}`);
     } finally {
       setIsSaving(false);
     }
@@ -113,7 +118,7 @@ const InstructorAvailability = () => {
                   {time}
                 </div>
                 {days.map(day => {
-                  const isSelected = availability.includes(`${day}-${time}`);
+                  const isSelected = availability.includes(`${day}|${time}`);
                   return (
                     <div 
                       key={`${day}-${time}`}

@@ -20,7 +20,7 @@ public class AvailabilityController : ControllerBase
         _context = context;
     }
 
-    // GET: api/Availability
+    // GET: api/Availability — current instructor's own slots
     [HttpGet]
     public async Task<ActionResult<IEnumerable<AvailabilityDto>>> GetMyAvailability()
     {
@@ -42,17 +42,45 @@ public class AvailabilityController : ControllerBase
         return Ok(availabilities);
     }
 
+    // GET: api/Availability/all?instructorId=...  (Admin only)
+    [HttpGet("all")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetAllAvailability([FromQuery] Guid? instructorId)
+    {
+        var query = _context.LecturerAvailabilities
+            .Include(a => a.Instructor)
+            .AsQueryable();
+
+        if (instructorId.HasValue)
+            query = query.Where(a => a.InstructorId == instructorId.Value);
+
+        var result = await query.Select(a => new
+        {
+            id = a.Id,
+            instructorId = a.InstructorId,
+            instructorName = a.Instructor.FirstName + " " + a.Instructor.LastName,
+            dayOfWeek = a.DayOfWeek,
+            startTime = a.StartTime.ToString(@"hh\:mm"),
+            endTime = a.EndTime.ToString(@"hh\:mm"),
+            isPreferred = a.IsPreferred
+        }).ToListAsync();
+
+        return Ok(result);
+    }
+
     // POST: api/Availability/bulk
     [HttpPost("bulk")]
-    public async Task<IActionResult> UpdateAvailability(UpdateAvailabilityDto dto)
+    public async Task<IActionResult> UpdateAvailability([FromBody] UpdateAvailabilityDto dto)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
 
+        if (dto?.Availabilities == null)
+            return BadRequest(new { message = "Availabilities list is required." });
+
         var instructorId = Guid.Parse(userId);
 
-        // Simple strategy: Clear existing and replace with new ones
-        // In a production app, you might want to diff them to avoid unnecessary deletes
+        // Clear existing slots for this instructor and replace with new ones
         var existing = await _context.LecturerAvailabilities
             .Where(a => a.InstructorId == instructorId)
             .ToListAsync();
@@ -61,17 +89,34 @@ public class AvailabilityController : ControllerBase
 
         foreach (var item in dto.Availabilities)
         {
+            // Parse time — accept "HH:mm" or "HH:mm:ss"
+            TimeSpan start, end;
+            try
+            {
+                var s = item.StartTime?.Trim() ?? "";
+                var e = item.EndTime?.Trim() ?? "";
+                // Normalise to H:mm if needed
+                start = s.Length == 5 ? TimeSpan.ParseExact(s, @"hh\:mm", null) : TimeSpan.Parse(s);
+                end   = e.Length == 5 ? TimeSpan.ParseExact(e, @"hh\:mm", null) : TimeSpan.Parse(e);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Invalid time format for slot: startTime='{item.StartTime}', endTime='{item.EndTime}'. Expected HH:mm. Error: {ex.Message}" });
+            }
+
             _context.LecturerAvailabilities.Add(new LecturerAvailability
             {
+                Id = Guid.NewGuid(),
                 InstructorId = instructorId,
                 DayOfWeek = item.DayOfWeek,
-                StartTime = TimeSpan.Parse(item.StartTime),
-                EndTime = TimeSpan.Parse(item.EndTime),
-                IsPreferred = item.IsPreferred
+                StartTime = start,
+                EndTime = end,
+                IsPreferred = item.IsPreferred,
+                MaxClassesPerDay = 2
             });
         }
 
         await _context.SaveChangesAsync();
-        return Ok(new { message = "Availability updated successfully" });
+        return Ok(new { message = "Availability updated successfully", count = dto.Availabilities.Count });
     }
 }

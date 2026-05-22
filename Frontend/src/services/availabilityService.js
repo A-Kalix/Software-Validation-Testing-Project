@@ -14,11 +14,18 @@ export const availabilityService = {
   },
 
   /**
-   * Bulk update availability slots
-   * @param {Array} availabilities - List of {dayOfWeek, startTime, endTime, isPreferred}
+   * Bulk-replace all availability slots for the current instructor.
+   * @param {Array} availabilities - List of {dayOfWeek:int, startTime:'HH:mm', endTime:'HH:mm', isPreferred:bool}
    */
   updateBulk: async (availabilities) => {
-    const response = await client.post('/Availability/bulk', { availabilities });
+    // Normalise to HH:mm (pad hour if needed), drop any extra fields like 'id'
+    const normalized = availabilities.map(a => ({
+      dayOfWeek: Number(a.dayOfWeek),
+      startTime: String(a.startTime).substring(0, 5).padStart(5, '0'),  // "9:00" → "09:00"
+      endTime:   String(a.endTime).substring(0, 5).padStart(5, '0'),
+      isPreferred: a.isPreferred ?? true,
+    }));
+    const response = await client.post('/Availability/bulk', { availabilities: normalized });
     return response.data;
   }
 };

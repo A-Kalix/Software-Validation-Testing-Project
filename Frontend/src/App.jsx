@@ -13,6 +13,8 @@ import Users from './pages/Users';
 import MasterSchedule from './pages/MasterSchedule';
 import InstructorAvailability from './pages/InstructorAvailability';
 import MySchedule from './pages/MySchedule';
+import AdminAvailability from './pages/AdminAvailability';
+import MyEnrollments from './pages/MyEnrollments';
 
 /**
  * Main Application Component
@@ -39,6 +41,8 @@ function App() {
           <Route path="/dashboard/master-schedule" element={<MasterSchedule />} />
           <Route path="/dashboard/availability" element={<InstructorAvailability />} />
           <Route path="/dashboard/schedule" element={<MySchedule />} />
+          <Route path="/dashboard/instructor-availability" element={<AdminAvailability />} />
+          <Route path="/dashboard/my-courses" element={<MyEnrollments />} />
         </Route>
         
         {/* Fallback route */}
