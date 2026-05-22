@@ -6,8 +6,8 @@ services:
     container_name: university-scheduler-db
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=YourStrongPassword123!
-      - MSSQL_PID=Developer
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+      - MSSQL_PID=${MSSQL_PID:-Developer}
     ports:
       - "1433:1433"
     volumes:

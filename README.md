@@ -64,11 +64,15 @@ docker run -d --name sonarqube \
   sonarqube:community
 ```
 2. Create a Sonar project and generate a token.
-3. Set `SONAR_TOKEN` in your shell:
+3. Copy `.env.example` to `.env` and update the values for your local environment:
+```bash
+cp .env.example .env
+```
+4. Set `SONAR_TOKEN` in your shell:
 ```bash
 export SONAR_TOKEN="<your_token>"
 ```
-4. Run the helper script from the repo root:
+5. Run the helper script from the repo root:
 ```bash
 chmod +x scripts/run-sonar.sh
 ./scripts/run-sonar.sh

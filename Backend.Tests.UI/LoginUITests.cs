@@ -32,13 +32,16 @@ public class LoginUITests : IDisposable
     {
         _driver.Navigate().GoToUrl($"{_baseUrl}/login");
 
+        var loginEmail = Environment.GetEnvironmentVariable("UI_TEST_USERNAME") ?? "student@university.edu";
+        var loginPassword = Environment.GetEnvironmentVariable("UI_TEST_PASSWORD") ?? "Demo123!";
+
         var emailInput = _driver.FindElement(By.CssSelector("input[type='email']"));
         emailInput.Clear();
-        emailInput.SendKeys("student@university.edu");
+        emailInput.SendKeys(loginEmail);
 
         var passwordInput = _driver.FindElement(By.CssSelector("input[type='password']"));
         passwordInput.Clear();
-        passwordInput.SendKeys("Demo123!");
+        passwordInput.SendKeys(loginPassword);
 
         var submitButton = _driver.FindElement(By.CssSelector("button[type='submit']"));
         submitButton.Click();

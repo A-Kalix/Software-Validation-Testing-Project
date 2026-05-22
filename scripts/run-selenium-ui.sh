@@ -12,6 +12,11 @@ if ! command -v dotnet >/dev/null 2>&1; then
 fi
 
 cd "$ROOT_DIR"
+if [ -f ".env" ]; then
+  set -o allexport
+  source ".env"
+  set +o allexport
+fi
 
 # Start database container if not already running
 docker compose up -d db
